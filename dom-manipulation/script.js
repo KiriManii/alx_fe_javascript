@@ -1,9 +1,55 @@
-// Array to store quotes, loaded from local storage if available
 let quotes = JSON.parse(localStorage.getItem('quotes')) || [
     { text: "The only limit to our realization of tomorrow is our doubts of today.", category: "Motivation" },
     { text: "In the middle of every difficulty lies opportunity.", category: "Opportunity" },
     { text: "Success is not the key to happiness. Happiness is the key to success.", category: "Success" }
   ];
+  
+  // Mock server URL (we'll simulate syncing with JSONPlaceholder)
+  const SERVER_URL = 'https://jsonplaceholder.typicode.com/posts';
+  
+  // Function to fetch quotes from server (mock API)
+  async function fetchQuotesFromServer() {
+    try {
+      const response = await fetch(SERVER_URL);
+      const serverQuotes = await response.json();
+  
+      // Simulate converting server data to our quote structure
+      const fetchedQuotes = serverQuotes.map(post => ({
+        text: post.title,
+        category: "Server"  // Assigning a default "Server" category to all fetched quotes
+      }));
+  
+      handleConflictResolution(fetchedQuotes);
+    } catch (error) {
+      console.error("Error fetching data from server:", error);
+    }
+  }
+  
+  // Function to handle conflict resolution
+  function handleConflictResolution(fetchedQuotes) {
+    // Simple conflict resolution: server data takes precedence
+    const serverHasNewQuotes = fetchedQuotes.length > quotes.length;
+  
+    if (serverHasNewQuotes) {
+      alert("Server data has been updated. Syncing new quotes...");
+      
+      // Replace local quotes with server quotes if there's a conflict
+      quotes = fetchedQuotes;
+  
+      // Update local storage
+      saveQuotes();
+      populateCategories();
+      showRandomQuote();
+    }
+  }
+  
+  // Function to sync local quotes with the server (periodically)
+  function syncWithServer() {
+    fetchQuotesFromServer();
+  }
+  
+  // Call the sync function every 30 seconds (adjust as needed)
+  setInterval(syncWithServer, 30000);
   
   // Function to display a random or filtered quote
   function showRandomQuote(filteredQuotes = quotes) {
@@ -26,7 +72,6 @@ let quotes = JSON.parse(localStorage.getItem('quotes')) || [
     const newQuoteCategory = document.getElementById("newQuoteCategory").value;
   
     if (newQuoteText && newQuoteCategory) {
-      // Add the new quote to the array
       quotes.push({ text: newQuoteText, category: newQuoteCategory });
   
       // Save updated quotes array to local storage
@@ -148,7 +193,7 @@ let quotes = JSON.parse(localStorage.getItem('quotes')) || [
   window.onload = function() {
     createAddQuoteForm();
     populateCategories(); // Populate the category dropdown
-    
+  
     const lastViewedQuote = sessionStorage.getItem('lastViewedQuote');
     if (lastViewedQuote) {
       const quote = JSON.parse(lastViewedQuote);
