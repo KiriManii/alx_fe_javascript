@@ -20,6 +20,9 @@ let quotes = JSON.parse(localStorage.getItem('quotes')) || [
       }));
   
       handleConflictResolution(fetchedQuotes);
+      
+      // Add message when quotes are successfully synced
+      alert("Quotes synced with server!");
     } catch (error) {
       console.error("Error fetching data from server:", error);
     }
