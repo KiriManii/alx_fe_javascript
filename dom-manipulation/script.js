@@ -32,7 +32,7 @@ let quotes = JSON.parse(localStorage.getItem('quotes')) || [
   
     if (serverHasNewQuotes) {
       alert("Server data has been updated. Syncing new quotes...");
-      
+  
       // Replace local quotes with server quotes if there's a conflict
       quotes = fetchedQuotes;
   
@@ -44,12 +44,12 @@ let quotes = JSON.parse(localStorage.getItem('quotes')) || [
   }
   
   // Function to sync local quotes with the server (periodically)
-  function syncWithServer() {
+  function syncQuotes() {
     fetchQuotesFromServer();
   }
   
   // Call the sync function every 30 seconds (adjust as needed)
-  setInterval(syncWithServer, 30000);
+  setInterval(syncQuotes, 30000);
   
   // Function to display a random or filtered quote
   function showRandomQuote(filteredQuotes = quotes) {
