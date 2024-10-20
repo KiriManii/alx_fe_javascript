@@ -67,15 +67,19 @@ let quotes = JSON.parse(localStorage.getItem('quotes')) || [
   }
   
   // Function to add a new quote
-  function addQuote() {
+  async function addQuote() {
     const newQuoteText = document.getElementById("newQuoteText").value;
     const newQuoteCategory = document.getElementById("newQuoteCategory").value;
   
     if (newQuoteText && newQuoteCategory) {
-      quotes.push({ text: newQuoteText, category: newQuoteCategory });
+      const newQuote = { text: newQuoteText, category: newQuoteCategory };
+      quotes.push(newQuote);
   
       // Save updated quotes array to local storage
       saveQuotes();
+  
+      // Send new quote to server
+      await postQuoteToServer(newQuote);
   
       // Update categories in the dropdown if a new category was added
       populateCategories();
@@ -85,6 +89,28 @@ let quotes = JSON.parse(localStorage.getItem('quotes')) || [
       document.getElementById("newQuoteCategory").value = '';
     } else {
       alert('Please enter both a quote and a category.');
+    }
+  }
+  
+  // Function to send a new quote to the server using POST
+  async function postQuoteToServer(quote) {
+    try {
+      const response = await fetch(SERVER_URL, {
+        method: 'POST', // Specify the method as POST
+        headers: {
+          'Content-Type': 'application/json' // Set the content type to JSON
+        },
+        body: JSON.stringify(quote) // Send the quote data as JSON
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to send quote to server.');
+      }
+  
+      const result = await response.json();
+      console.log('Quote successfully sent to server:', result);
+    } catch (error) {
+      console.error("Error posting quote to server:", error);
     }
   }
   
